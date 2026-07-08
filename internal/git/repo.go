@@ -48,8 +48,7 @@ func (r *Repo) Dir() string {
 func (r *Repo) isBareRepo(ctx context.Context) bool {
 	out, err := r.RunCommand(ctx, "rev-parse", "--is-bare-repository")
 	if err != nil {
-		panic(err)
-		// return false
+		return false
 	}
 
 	isBare, err := strconv.ParseBool(strings.TrimSpace(string(out)))
@@ -251,9 +250,9 @@ func NewRepo(ctx context.Context, name, dir, remote string) (*Repo, error) {
 			return nil, err
 		}
 	} else {
-		//if !r.isBareRepo(ctx) {
-		//	return nil, fmt.Errorf("git: repository is not a bare repository")
-		//}
+		if !r.isBareRepo(ctx) {
+			return nil, fmt.Errorf("git: repository is not a bare repository")
+		}
 
 		if err = r.fetch(ctx); err != nil {
 			return nil, err

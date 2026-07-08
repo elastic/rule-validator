@@ -6,6 +6,8 @@ package git
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,18 +15,34 @@ import (
 )
 
 func mustNewRepo(t *testing.T) *Repo {
+	// Required to read embedded test bare repository.
+	cwd, err := os.Getwd()
+	require.NoError(t, err)
+	require.NoError(t, os.Setenv("GIT_CONFIG_PARAMETERS", "'safe.bareRepository=explicit'"))
+	require.NoError(t, os.Setenv("GIT_DIR", filepath.Join(cwd, "testdata/test-repo.git")))
+
 	r, err := NewRepo(context.Background(), "test-repo", "testdata/test-repo.git", "")
 	require.NoError(t, err)
+
+	r.dir = "" // For tests, relying on GIT_DIR env instead of -C <dir> due to safe.bareRepository=explicit.
 
 	return r
 }
 
 func TestNewRepo(t *testing.T) {
+	// Required to read embedded test bare repository.
+	cwd, err := os.Getwd()
+	require.NoError(t, err)
+	require.NoError(t, os.Setenv("GIT_CONFIG_PARAMETERS", "'safe.bareRepository=explicit'"))
+	require.NoError(t, os.Setenv("GIT_DIR", filepath.Join(cwd, "testdata/test-repo.git")))
+
 	r, err := NewRepo(context.Background(), "test-repo", "testdata/test-repo.git", "")
 	require.NoError(t, err)
 
 	assert.Equal(t, "test-repo", r.Name())
 	assert.Equal(t, "testdata/test-repo.git", r.Dir())
+
+	r.dir = "" // For tests, relying on GIT_DIR env instead of -C <dir> due to safe.bareRepository=explicit.
 }
 
 func TestRepo_Tags(t *testing.T) {

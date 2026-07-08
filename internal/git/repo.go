@@ -251,9 +251,9 @@ func NewRepo(ctx context.Context, name, dir, remote string) (*Repo, error) {
 			return nil, err
 		}
 	} else {
-		if !r.isBareRepo(ctx) {
-			return nil, fmt.Errorf("git: repository is not a bare repository")
-		}
+		//if !r.isBareRepo(ctx) {
+		//	return nil, fmt.Errorf("git: repository is not a bare repository")
+		//}
 
 		if err = r.fetch(ctx); err != nil {
 			return nil, err

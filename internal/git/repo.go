@@ -48,7 +48,8 @@ func (r *Repo) Dir() string {
 func (r *Repo) isBareRepo(ctx context.Context) bool {
 	out, err := r.RunCommand(ctx, "rev-parse", "--is-bare-repository")
 	if err != nil {
-		return false
+		panic(err)
+		// return false
 	}
 
 	isBare, err := strconv.ParseBool(strings.TrimSpace(string(out)))

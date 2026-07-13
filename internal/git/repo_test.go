@@ -5,7 +5,6 @@
 package git
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,14 +12,14 @@ import (
 )
 
 func mustNewRepo(t *testing.T) *Repo {
-	r, err := NewRepo(context.Background(), "test-repo", "testdata/test-repo.git", "")
+	r, err := NewRepo(t.Context(), "test-repo", "testdata/test-repo.git", "")
 	require.NoError(t, err)
 
 	return r
 }
 
 func TestNewRepo(t *testing.T) {
-	r, err := NewRepo(context.Background(), "test-repo", "testdata/test-repo.git", "")
+	r, err := NewRepo(t.Context(), "test-repo", "testdata/test-repo.git", "")
 	require.NoError(t, err)
 
 	assert.Equal(t, "test-repo", r.Name())
@@ -30,7 +29,7 @@ func TestNewRepo(t *testing.T) {
 func TestRepo_Tags(t *testing.T) {
 	r := mustNewRepo(t)
 
-	tags, err := r.Tags(context.Background())
+	tags, err := r.Tags(t.Context())
 	require.NoError(t, err)
 
 	want := []string{
@@ -65,7 +64,7 @@ func TestRepo_TagToHash(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := r.TagToHash(context.Background(), tc.tag)
+			got, err := r.TagToHash(t.Context(), tc.tag)
 			require.NoError(t, err)
 
 			assert.Equal(t, tc.want, got)
@@ -92,7 +91,7 @@ func TestRepo_FileHistory(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := r.FileHistory(context.Background(), "main", tc.filename)
+			got, err := r.FileHistory(t.Context(), "main", tc.filename)
 			require.NoError(t, err)
 
 			assert.Equal(t, tc.want, got)
@@ -127,7 +126,7 @@ func TestRepo_Changeset(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := r.Changeset(context.Background(), tc.ref)
+			got, err := r.Changeset(t.Context(), tc.ref)
 			require.NoError(t, err)
 
 			assert.Equal(t, tc.want, got)
@@ -221,7 +220,7 @@ func TestRepo_ListTree(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := r.ListTree(context.Background(), tc.ref, tc.dirpath, tc.treeOnly, tc.recursive)
+			got, err := r.ListTree(t.Context(), tc.ref, tc.dirpath, tc.treeOnly, tc.recursive)
 			require.NoError(t, err)
 
 			assert.Equal(t, tc.want, got)
@@ -261,7 +260,7 @@ func TestRepo_ReadFile(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := r.ReadFile(context.Background(), tc.ref, tc.filename)
+			got, err := r.ReadFile(t.Context(), tc.ref, tc.filename)
 			require.NoError(t, err)
 
 			assert.Equal(t, tc.want, got)
@@ -278,7 +277,7 @@ func TestRepo_ParseYAMLFile(t *testing.T) {
 	r := mustNewRepo(t)
 
 	var ts testStruct
-	err := r.ParseYAMLFile(context.Background(), "main", "folder/test.yml", &ts)
+	err := r.ParseYAMLFile(t.Context(), "main", "folder/test.yml", &ts)
 	require.NoError(t, err)
 
 	want := testStruct{

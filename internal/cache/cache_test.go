@@ -8,6 +8,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -26,4 +27,51 @@ func TestCache_GetOrCreateRepo(t *testing.T) {
 	secondRepo, err := c.GetOrCreateRepo(t.Context(), "../git/testdata/test-repo.git")
 	require.NoError(t, err)
 	require.Equal(t, firstRepo, secondRepo)
+}
+
+func TestCache_remoteToName(t *testing.T) {
+	testCases := []struct {
+		name string
+		in   string
+		want string
+	}{
+		{
+			name: "local-fs",
+			in:   "path/to/repo",
+			want: "path_to_repo",
+		},
+		{
+			name: "local-fs-absolute",
+			in:   "/path/to/repo.git",
+			want: "_path_to_repo",
+		},
+		{
+			name: "local-fs-windows",
+			in:   "path\\to\\repo",
+			want: "path_to_repo",
+		},
+		{
+			name: "local-fs-absolute-windows",
+			in:   "C:\\path\\to\\repo.git",
+			want: "C_path_to_repo",
+		},
+		{
+			name: "https",
+			in:   "https://code.example.com/path/to/repo.git",
+			want: "code_example_com_path_to_repo",
+		},
+		{
+			name: "ssh",
+			in:   "git@code.example.com:path/to/repo.git",
+			want: "code_example_com_path_to_repo",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := remoteToName(tc.in)
+
+			assert.Equal(t, tc.want, got)
+		})
+	}
 }

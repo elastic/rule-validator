@@ -7,7 +7,6 @@ package cache
 import (
 	"context"
 	"fmt"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,7 +19,13 @@ const (
 	reposDir = "repos"
 )
 
-var repoNameReplacer = strings.NewReplacer(".", "_", "/", "_")
+var repoNameReplacer = strings.NewReplacer(
+	".", "_",
+	"/", "_",
+	":\\", "_",
+	"\\", "_",
+	":", "_",
+)
 
 type Cache struct {
 	dir   string
@@ -40,13 +45,7 @@ func (c *Cache) ReposDir() string {
 }
 
 func (c *Cache) GetOrCreateRepo(ctx context.Context, remote string) (*git.Repo, error) {
-	u, err := url.Parse(remote)
-	if err != nil {
-		return nil, err
-	}
-
-	name := repoNameReplacer.Replace(u.Host)
-	name += repoNameReplacer.Replace(strings.TrimSuffix(u.Path, ".git"))
+	name := remoteToName(remote)
 
 	if repo, ok := c.repos[name]; ok {
 		return repo, nil
@@ -84,4 +83,19 @@ func New(dir string) (*Cache, error) {
 		dir:   dir,
 		repos: map[string]*git.Repo{},
 	}, nil
+}
+
+func remoteToName(remote string) string {
+	name := strings.TrimSuffix(remote, ".git")
+
+	if strings.Contains(name, "://") {
+		_, name, _ = strings.Cut(name, "://")
+	}
+	if strings.Contains(name, "@") {
+		_, name, _ = strings.Cut(name, "@")
+	}
+
+	name = repoNameReplacer.Replace(name)
+
+	return name
 }

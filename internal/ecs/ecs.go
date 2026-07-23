@@ -134,7 +134,7 @@ func NewResolver(ref string, options ...Option) (*Resolver, error) {
 }
 
 func getCacheFilename(ref, cacheDir string) string {
-	return filepath.Join(cacheDir, "ecs-"+ref+".json")
+	return filepath.Join(cacheDir, ref+".json")
 }
 
 func loadResolver(ref, cacheDir string) (*Resolver, error) {
